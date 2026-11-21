@@ -267,3 +267,9 @@ body.cookie-open .wa{display:none}
 .thumb img{width:100%;height:100%;object-fit:cover}
 .menu{padding:0;overflow:hidden}.menu .mh,.menu ul,.menu .btn{margin-left:20px;margin-right:20px}.menu .mh{padding-top:18px}.menu .btn{margin-bottom:20px}
 .mimg{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+
+.video.wide{aspect-ratio:16/9}
+.thumb{position:relative}.tplay{position:absolute;inset:0;margin:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92)}
+.tplay:after{content:"";position:absolute;left:11px;top:8px;border-left:10px solid var(--brand);border-top:7px solid transparent;border-bottom:7px solid transparent}
+.vidtag{position:absolute;left:12px;bottom:12px;background:rgba(22,22,22,.82);color:#fff;font-size:12px;font-weight:500;padding:5px 10px;border-radius:999px}
+.modal-bg video{background:#000}

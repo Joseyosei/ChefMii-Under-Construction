@@ -33,7 +33,7 @@ export const CHEFS = [
   },
   {
     id: 'james', name: 'Chef James', cuisine: ['Ghanaian'], area: 'South London', rating: 4.8, reviews: 31, min: 12,
-    photo: 'assets/chefs/james.jpg', video: 'assets/video/james.mp4', poster: 'assets/video/james_poster.jpg', cooking: 'assets/chefs/james_cooking.jpg', tone: '#7A3B1F',
+    photo: 'assets/chefs/james.jpg', video: 'assets/video/james.mp4', poster: 'assets/video/james_poster.jpg', cooking: 'assets/chefs/james_cooking.jpg', clip: 'assets/video/james_cooking.mp4', clipPoster: 'assets/video/james_cooking_poster.jpg', clipCaption: 'Shaping banku, with grilled tilapia', tone: '#7A3B1F',
     tags: ['vegetarian options'],
     bio: 'Trained in hotel kitchens, cooks the Ghana he grew up with in Accra: waakye, banku and tilapia, kelewele and proper shito, for parties of 12 to 40.',
     dishes: ['Waakye', 'Banku and tilapia', 'Kelewele', 'Ghana jollof'],
@@ -45,7 +45,7 @@ export const CHEFS = [
   },
   {
     id: 'fatmata', name: 'Chef Fatmata', cuisine: ['Sierra Leonean'], area: 'East London', rating: 5.0, reviews: 9, min: 8,
-    photo: 'assets/chefs/fatmata.jpg', video: 'assets/video/fatmata.mp4', poster: 'assets/video/fatmata_poster.jpg', cooking: 'assets/chefs/fatmata_cooking.jpg', tone: '#3E6B3A',
+    photo: 'assets/chefs/fatmata.jpg', video: 'assets/video/fatmata.mp4', poster: 'assets/video/fatmata_poster.jpg', cooking: 'assets/chefs/fatmata_cooking.jpg', clip: 'assets/video/fatmata_cooking.mp4', clipPoster: 'assets/video/fatmata_cooking_poster.jpg', clipCaption: 'Stirring cassava leaf stew', tone: '#3E6B3A',
     tags: ['halal on request', 'nut-free menu available'],
     bio: 'Salone home cooking with a modern touch: cassava leaf, groundnut soup and fry-fry for smaller family celebrations.',
     dishes: ['Cassava leaf', 'Groundnut soup', 'Salone jollof', 'Ginger beer'],
@@ -56,7 +56,7 @@ export const CHEFS = [
   },
   {
     id: 'kofi', name: 'Chef Kofi', cuisine: ['Ghanaian', 'Nigerian'], area: 'North London', rating: 4.7, reviews: 14, min: 15,
-    photo: 'assets/chefs/kofi.jpg', video: 'assets/video/kofi.mp4', poster: 'assets/video/kofi_poster.jpg', cooking: 'assets/chefs/kofi_cooking.jpg', tone: '#8C5A1E',
+    photo: 'assets/chefs/kofi.jpg', video: 'assets/video/kofi.mp4', poster: 'assets/video/kofi_poster.jpg', cooking: 'assets/chefs/kofi_cooking.jpg', clip: 'assets/video/kofi_cooking.mp4', clipPoster: 'assets/video/kofi_cooking_poster.jpg', clipCaption: 'Glazing suya-spiced chicken wings', tone: '#8C5A1E',
     tags: ['vegetarian options'],
     bio: 'Mixes Ghanaian and Nigerian classics, so both families feel at home. Popular for engagements and graduations.',
     dishes: ['Jollof both ways', 'Suya wings', 'Banku', 'Meat pies'],

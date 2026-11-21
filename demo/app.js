@@ -82,7 +82,7 @@ function avatar(c, size = 44) {
 }
 function chefCard(c) {
   return `<a class="card" href="#/chef/${c.id}">
-    <div class="cover">${cover(c)}<span class="pill">${ic('shield')}Verified</span><span class="demo-tag">Demo profile</span><span class="play" aria-hidden="true"></span></div>
+    <div class="cover">${cover(c)}<span class="pill">${ic('shield')}Verified</span>${c.clip ? '<span class="vidtag">Cooking video</span>' : ''}<span class="demo-tag">Demo profile</span><span class="play" aria-hidden="true"></span></div>
     <div class="cbody"><div class="top"><h3>${esc(c.name)}</h3><span class="rate"><span class="s">★</span> <b>${c.rating.toFixed(1)}</b> <span class="muted">(${c.reviews})</span></span></div>
       <div class="meta">${esc(c.cuisine.join(' and '))} · ${esc(c.area)}</div>
       <div class="meta">${esc(c.dishes.slice(0, 3).join(', '))}</div>
@@ -202,9 +202,14 @@ function chefsPage(q) {
 }
 function chefPage(id) {
   const c = CHEFS.find(x => x.id === id); if (!c) return `<section><div class="wrap empty">Chef not found. <a href="#/chefs">See all chefs</a></div></section>`;
-  return `<div class="wrap profile"><div class="media"><div class="video"><video class="reel" src="${c.video}" poster="${c.poster}" autoplay muted loop playsinline controls preload="metadata" aria-label="${esc(c.name)} demo cooking reel"></video></div>
-      <p class="small muted" style="margin:10px 2px 0">Demo reel made from AI-generated images. Real chef videos are filmed during onboarding.</p>
-      <div class="thumbs">${[c.photo, c.cooking, ...c.menus.map(m => m.img)].map((u, i) => `<button class="thumb" data-img="${u}" aria-label="View photo ${i + 1}"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></div>
+  const mediaMain = c.clip
+    ? `<div class="video wide"><video class="reel" src="${c.clip}" poster="${c.clipPoster}" autoplay muted loop playsinline controls preload="metadata" aria-label="${esc(c.name)} cooking video"></video></div>
+       <p class="small muted" style="margin:10px 2px 0"><b style="color:var(--ink)">Watch ${esc(c.name.replace('Chef ', ''))} cook:</b> ${esc(c.clipCaption)}. Tap the speaker for sound. AI-generated demo video.</p>`
+    : `<div class="video"><video class="reel" src="${c.video}" poster="${c.poster}" autoplay muted loop playsinline controls preload="metadata" aria-label="${esc(c.name)} demo cooking reel"></video></div>
+       <p class="small muted" style="margin:10px 2px 0">Demo reel made from AI-generated images. Real chef videos are filmed during onboarding.</p>`;
+  const thumbs = [...(c.clip ? [{ u: c.poster, v: c.video, label: 'Demo reel' }] : []), { u: c.photo }, { u: c.cooking }, ...c.menus.map(m => ({ u: m.img }))].slice(0, 4);
+  return `<div class="wrap profile"><div class="media">${mediaMain}
+      <div class="thumbs">${thumbs.map((t, i) => `<button class="thumb" data-img="${t.u}" ${t.v ? `data-video="${t.v}"` : ''} aria-label="${t.label || 'View photo ' + (i + 1)}"><img src="${t.u}" alt="" loading="lazy">${t.v ? '<span class="tplay"></span>' : ''}</button>`).join('')}</div></div>
     <div><a class="back" href="#/chefs">${ic('back')} All chefs</a><p class="eyebrow">${esc(c.cuisine.join(' and '))} · ${esc(c.area)}</p><h1 style="font-size:clamp(32px,4vw,48px)">${esc(c.name)}</h1>
       <div class="rate"><span class="s">★</span> <b>${c.rating.toFixed(1)}</b> <span class="muted">from ${c.reviews} reviews · demo profile</span></div>
       <div class="badges"><span class="badge">${ic('check')}ID verified</span><span class="badge">${ic('check')}Council registered</span><span class="badge">${ic('check')}Hygiene and allergen trained</span><span class="badge">${ic('check')}Insured</span></div>
@@ -323,7 +328,7 @@ function bindAdmin() {
 
 function bindChef() {
   document.querySelectorAll('.thumb').forEach(b => b.onclick = () => {
-    const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<img src="${b.dataset.img}" alt="" style="max-width:min(92vw,1000px);max-height:86vh;border-radius:16px">`;
+    const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = b.dataset.video ? `<video src="${b.dataset.video}" autoplay controls playsinline style="max-width:min(92vw,560px);max-height:86vh;border-radius:16px"></video>` : `<img src="${b.dataset.img}" alt="" style="max-width:min(92vw,1000px);max-height:86vh;border-radius:16px">`;
     bg.onclick = () => bg.remove(); document.body.appendChild(bg);
   });
 }
@@ -345,6 +350,7 @@ function render() {
     case 'admin': html = adminPage(); after = bindAdmin; break;
     default: html = home(); after = () => { bindSearch(); bindConcierge('hm'); };
   }
+  document.querySelectorAll('.modal-bg').forEach(m => m.remove());
   $('#app').innerHTML = html; if (after) after();
   document.querySelectorAll('.nav .links a').forEach(a => a.classList.toggle('on', a.dataset.r === parts[0]));
   $('#drawer').classList.remove('open'); $('#burger').setAttribute('aria-expanded', 'false');
