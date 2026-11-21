@@ -202,14 +202,15 @@ function chefsPage(q) {
 }
 function chefPage(id) {
   const c = CHEFS.find(x => x.id === id); if (!c) return `<section><div class="wrap empty">Chef not found. <a href="#/chefs">See all chefs</a></div></section>`;
-  return `<div class="wrap profile"><div><div class="video">${c.photo ? `<img src="${c.photo}" alt="${esc(c.name)} (demo profile)">` : `<div class="cover" style="aspect-ratio:auto;height:100%"><div class="dish" style="--tone:${c.tone};font-size:34px">${esc(c.dishes[0])}</div></div>`}
-      <span class="bigplay" aria-hidden="true"></span><div class="over">Cooking clip: ${esc(c.dishes[0].toLowerCase())}. Real chef videos play here after filming.</div></div></div>
+  return `<div class="wrap profile"><div class="media"><div class="video"><video class="reel" src="${c.video}" poster="${c.poster}" autoplay muted loop playsinline controls preload="metadata" aria-label="${esc(c.name)} demo cooking reel"></video></div>
+      <p class="small muted" style="margin:10px 2px 0">Demo reel made from AI-generated images. Real chef videos are filmed during onboarding.</p>
+      <div class="thumbs">${[c.photo, c.cooking, ...c.menus.map(m => m.img)].map((u, i) => `<button class="thumb" data-img="${u}" aria-label="View photo ${i + 1}"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></div>
     <div><a class="back" href="#/chefs">${ic('back')} All chefs</a><p class="eyebrow">${esc(c.cuisine.join(' and '))} · ${esc(c.area)}</p><h1 style="font-size:clamp(32px,4vw,48px)">${esc(c.name)}</h1>
       <div class="rate"><span class="s">★</span> <b>${c.rating.toFixed(1)}</b> <span class="muted">from ${c.reviews} reviews · demo profile</span></div>
       <div class="badges"><span class="badge">${ic('check')}ID verified</span><span class="badge">${ic('check')}Council registered</span><span class="badge">${ic('check')}Hygiene and allergen trained</span><span class="badge">${ic('check')}Insured</span></div>
       <p>${esc(c.bio)}</p><div class="tags">${c.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}<span class="tag">min ${c.min} guests</span></div>
       <h2 style="font-size:26px;margin-top:30px">Set menus</h2>
-      ${c.menus.map((m, k) => `<div class="menu"><div class="mh"><h3>${esc(m.n)}</h3><span class="pp"><b>${money(m.p)}</b> / guest</span></div><ul>${m.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul><a class="btn btn-primary" href="#/request?chef=${c.id}&menu=${k}">Request this menu</a></div>`).join('')}
+      ${c.menus.map((m, k) => `<div class="menu">${m.img ? `<img class="mimg" src="${m.img}" alt="${esc(m.n)} (AI-generated demo photo)" loading="lazy">` : ''}<div class="mh"><h3>${esc(m.n)}</h3><span class="pp"><b>${money(m.p)}</b> / guest</span></div><ul>${m.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul><a class="btn btn-primary" href="#/request?chef=${c.id}&menu=${k}">Request this menu</a></div>`).join('')}
       <p class="small muted">Price includes shopping, cooking, serving and clean-up. ChefMii booking fee of 15% is added at checkout.</p></div></div>`;
 }
 function conciergePage(q) {
@@ -320,13 +321,20 @@ function bindAdmin() {
   const x = $('#clr'); if (x) x.onclick = () => { if (confirm('Delete all demo requests on this device?')) { store.set([]); render(); } };
 }
 
+function bindChef() {
+  document.querySelectorAll('.thumb').forEach(b => b.onclick = () => {
+    const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<img src="${b.dataset.img}" alt="" style="max-width:min(92vw,1000px);max-height:86vh;border-radius:16px">`;
+    bg.onclick = () => bg.remove(); document.body.appendChild(bg);
+  });
+}
+
 /* ---------- router ---------- */
 function render() {
   const h = location.hash.replace(/^#\/?/, ''); const [path, qs] = h.split('?'); const parts = path.split('/'); const q = Object.fromEntries(new URLSearchParams(qs || ''));
   let html, after;
   switch (parts[0]) {
     case 'chefs': html = chefsPage(q); after = bindSearch; break;
-    case 'chef': html = chefPage(parts[1]); break;
+    case 'chef': html = chefPage(parts[1]); after = bindChef; break;
     case 'concierge': html = conciergePage(q); after = () => bindConcierge('cg', q.q || ''); break;
     case 'how': html = howBlock() + faq(); break;
     case 'request': html = requestPage(q); after = () => bindRequest(q); break;
