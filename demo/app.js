@@ -1,6 +1,7 @@
 import { CHEFS, CUISINES, OCCASIONS, AREAS, FEE } from './data.js';
 import { recommendLocal, summariseIntent } from './agent.js';
 import { mountMonitor } from './monitor-ui.js';
+import { mountSupport } from './support-ui.js';
 import { auth, tvPage, bindTv, signupPage, bindSignup, loginPage, bindLogin, dashboardPage, bindDashboard } from './chefs-area.js';
 
 const CHEF_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfwKH4BPHk4PS9OFk5tmeU3t1C-YFD4oieRsf6PxRnTDeTtQQ/viewform';
@@ -317,7 +318,7 @@ function cookiesPage() {
 }
 function adminPage() {
   const all = store.get(), ST = ['New', 'Contacted', 'Quoted', 'Booked', 'Lost'];
-  return `<section style="padding-top:40px"><div class="wrap"><h1 style="font-size:36px">Founder view</h1><p class="muted">Requests sent from this device (prototype: stored in this browser only).</p>
+  return `<section style="padding-top:40px"><div class="wrap"><h1 style="font-size:36px">Founder view</h1><p class="small muted">The Agent monitor (bottom right) is only shown on this page.</p><p class="muted">Requests sent from this device (prototype: stored in this browser only).</p>
   <div style="display:flex;gap:10px;margin:14px 0"><button class="btn btn-outline" id="csv">Export CSV</button><button class="btn btn-ghost" id="clr">Clear demo data</button></div>
   ${all.length ? `<div style="overflow-x:auto"><table class="tbl"><tr><th>Ref</th><th>Status</th><th>Event</th><th>Chef and menu</th><th>Host</th><th>Estimate</th></tr>${all.map((r, i) => `<tr><td><b>${r.id}</b><div class="muted small">${new Date(r.created).toLocaleString('en-GB')}</div></td>
    <td><select class="select" data-i="${i}">${ST.map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
@@ -361,6 +362,7 @@ async function render() {
     default: html = home(); after = () => { bindSearch(); bindConcierge('hm'); };
   }
   document.querySelectorAll('.modal-bg').forEach(m => m.remove());
+  document.body.dataset.route = parts[0] || 'home';
   $('#app').innerHTML = html; if (after) after();
   document.querySelectorAll('.nav .links a').forEach(a => { const on = a.dataset.r === parts[0]; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
   document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false'));
@@ -376,5 +378,5 @@ $('#burger').onclick = () => { $('#drawer').style.top = Math.max(0, document.que
 $('#cookieSettings').onclick = cookieModal;
 function go(h) { if (location.hash === h) render(); else location.hash = h; }
 window.addEventListener('hashchange', render);
-render(); cookieBanner(); mountMonitor();
+render(); cookieBanner(); mountSupport(); mountMonitor();
 document.querySelector('.skip').onclick = e => { e.preventDefault(); $('#app').focus(); };

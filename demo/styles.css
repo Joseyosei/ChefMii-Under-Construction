@@ -343,3 +343,43 @@ body.cookie-open .mon-fab{bottom:auto;top:84px}
 .mon-line{margin:0 0 6px;white-space:pre-wrap;word-break:break-word}
 .mon-sys{color:#B8AEA8}.mon-user{color:#F4B393}.mon-agent{color:#fff}.mon-ok{color:#7FD3A6}.mon-err{color:#FF9B8A}
 @media(max-width:520px){.mon-panel{right:12px;left:12px;width:auto;bottom:74px;max-height:calc(100vh - 90px)}.mon-fab span{display:none}.mon-fab{padding:14px}}
+
+/* founder-only monitor */
+.mon-fab{display:none}
+body[data-route="admin"] .mon-fab{display:inline-flex}
+body[data-route="admin"] .cs-fab{display:none}
+/* customer service chat */
+.cs-fab{position:fixed;right:18px;bottom:18px;z-index:45;display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:14px 20px;font:600 15.5px var(--sans);color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:0 10px 24px rgba(185,72,30,.35);cursor:pointer}
+.cs-fab svg{width:22px;height:22px}
+.cs-fab:focus-visible{outline:3px solid #F5A27C;outline-offset:3px}
+body.cookie-open .cs-fab{display:none}
+.cs-panel{position:fixed;right:18px;bottom:86px;z-index:65;width:min(390px,calc(100vw - 24px));height:min(600px,calc(100vh - 110px));background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+.cs-panel[hidden]{display:none}
+.cs-head{display:flex;align-items:center;gap:12px;padding:16px 14px 16px 18px;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+.cs-head img{width:84px;height:auto;flex:none}
+.cs-head div{flex:1;min-width:0}.cs-head h2{font:600 16px var(--sans);margin:0;color:#fff}
+.cs-head p{margin:2px 0 0;font-size:12.5px;color:#FFE7DC;display:flex;align-items:center;gap:6px}
+.cs-dot{width:8px;height:8px;border-radius:50%;background:#7FE3A9;display:inline-block}
+.cs-x{background:rgba(255,255,255,.16);border:0;color:#fff;font-size:24px;line-height:1;width:40px;height:40px;border-radius:12px;cursor:pointer;flex:none}
+.cs-x:hover{background:rgba(255,255,255,.28)}.cs-x:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.cs-log{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 14px;background:var(--cream);display:flex;flex-direction:column;gap:10px}
+.cs-log:focus-visible{outline:3px solid #F5A27C;outline-offset:-3px}
+.cs-row{display:flex;gap:8px;align-items:flex-end;max-width:88%}
+.cs-row.user{align-self:flex-end;flex-direction:row-reverse}
+.cs-av{width:28px;height:28px;border-radius:50%;background:var(--brand-2);color:#fff;font:700 13px var(--sans);display:flex;align-items:center;justify-content:center;flex:none}
+.cs-bubble{padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;background:#fff;border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:4px}
+.cs-row.user .cs-bubble{background:var(--ink);color:#fff;border-color:var(--ink);border-bottom-left-radius:16px;border-bottom-right-radius:4px}
+.cs-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cs-links a{font-size:13px;font-weight:500;text-decoration:none;color:var(--brand-2);border:1px solid #F0C9B6;background:var(--brand-soft);border-radius:999px;padding:5px 10px}
+.cs-links a:hover{background:#F9DCCD}
+.cs-typing{display:flex;gap:4px;padding:12px 14px}.cs-typing i{width:7px;height:7px;border-radius:50%;background:#B9ADA6;animation:b 1s infinite}.cs-typing i:nth-child(2){animation-delay:.15s}.cs-typing i:nth-child(3){animation-delay:.3s}
+.cs-quick{display:flex;gap:6px;overflow-x:auto;padding:10px 12px 4px;background:#fff;border-top:1px solid var(--line);scrollbar-width:thin}
+.cs-quick button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font:500 13px var(--sans);color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.cs-quick button:hover{border-color:var(--brand);color:var(--brand-2)}
+.cs-form{display:flex;gap:8px;padding:10px 12px;background:#fff}
+.cs-form input{flex:1;border:1px solid #D6CCC5;border-radius:999px;padding:11px 16px;font:15px var(--sans)}
+.cs-form input:focus{outline:3px solid #F5A27C;outline-offset:1px;border-color:var(--brand)}
+.cs-send{width:44px;height:44px;border-radius:50%;border:0;background:var(--brand-2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.cs-send svg{width:20px;height:20px}.cs-send:focus-visible{outline:3px solid #F5A27C;outline-offset:2px}
+.cs-foot{margin:0;padding:0 14px 10px;background:#fff;font-size:11.5px;color:var(--muted)}
+@media(max-width:520px){.cs-panel{right:8px;left:8px;width:auto;bottom:80px;height:calc(100vh - 100px)}.cs-fab span{display:none}.cs-fab{padding:15px}}
