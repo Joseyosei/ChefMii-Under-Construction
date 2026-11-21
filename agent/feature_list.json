@@ -1,0 +1,11 @@
+{
+  "features": [
+    { "id": "parse-intent", "desc": "Understand occasion, guests, cuisine, area, postcode, budget, dishes, diet, allergy", "status": "done" },
+    { "id": "tools", "desc": "search_chefs, get_chef, quote, dish_guide over the catalogue", "status": "done" },
+    { "id": "verifier", "desc": "Reject non-catalogue chefs, enforce minimum guests, recalc prices", "status": "done" },
+    { "id": "llm-engine", "desc": "Claude tool-use loop in /api/recommend when ANTHROPIC_API_KEY is set", "status": "done (needs key in Vercel)" },
+    { "id": "evals", "desc": "npm run eval regression cases", "status": "done" },
+    { "id": "availability", "desc": "Check real chef availability calendar", "status": "next" },
+    { "id": "real-catalogue", "desc": "Move chefs to Supabase once real chefs are verified", "status": "next" }
+  ]
+}

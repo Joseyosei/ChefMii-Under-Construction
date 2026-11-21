@@ -1,0 +1,6 @@
+{
+  "name": "chefmii-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": { "eval": "node evals/recommend.eval.js" }
+}
