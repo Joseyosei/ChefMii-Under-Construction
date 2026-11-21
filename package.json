@@ -2,5 +2,11 @@
   "name": "chefmii-prototype",
   "private": true,
   "type": "module",
-  "scripts": { "eval": "node evals/recommend.eval.js" }
+  "scripts": {
+    "eval": "node evals/recommend.eval.js",
+    "monitor": "node monitor/monitor.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0"
+  }
 }

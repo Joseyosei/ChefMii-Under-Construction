@@ -1,5 +1,6 @@
 import { CHEFS, CUISINES, OCCASIONS, AREAS, FEE } from './data.js';
 import { recommendLocal, summariseIntent } from './agent.js';
+import { mountMonitor } from './monitor-ui.js';
 import { auth, tvPage, bindTv, signupPage, bindSignup, loginPage, bindLogin, dashboardPage, bindDashboard } from './chefs-area.js';
 
 const CHEF_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfwKH4BPHk4PS9OFk5tmeU3t1C-YFD4oieRsf6PxRnTDeTtQQ/viewform';
@@ -361,7 +362,9 @@ async function render() {
   }
   document.querySelectorAll('.modal-bg').forEach(m => m.remove());
   $('#app').innerHTML = html; if (after) after();
-  document.querySelectorAll('.nav .links a').forEach(a => a.classList.toggle('on', a.dataset.r === parts[0]));
+  document.querySelectorAll('.nav .links a').forEach(a => { const on = a.dataset.r === parts[0]; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false'));
+  if (window.__routed) $('#app').focus({ preventScroll: true }); window.__routed = true;
   const me = auth.current();
   $('#authBtns').innerHTML = me ? `<a class="btn btn-ghost" href="#/dashboard">Dashboard</a>` : `<a class="btn btn-ghost" href="#/login">Log in</a>`;
   $('#drawerAuth').innerHTML = me ? `<a href="#/dashboard">Chef dashboard</a>` : `<a href="#/login">Chef log in</a><a href="#/signup">Join as a chef</a>`;
@@ -373,4 +376,5 @@ $('#burger').onclick = () => { $('#drawer').style.top = Math.max(0, document.que
 $('#cookieSettings').onclick = cookieModal;
 function go(h) { if (location.hash === h) render(); else location.hash = h; }
 window.addEventListener('hashchange', render);
-render(); cookieBanner();
+render(); cookieBanner(); mountMonitor();
+document.querySelector('.skip').onclick = e => { e.preventDefault(); $('#app').focus(); };
