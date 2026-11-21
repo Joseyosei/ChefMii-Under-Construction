@@ -1,5 +1,6 @@
 import { CHEFS, CUISINES, OCCASIONS, AREAS, FEE } from './data.js';
 import { recommendLocal, summariseIntent } from './agent.js';
+import { auth, tvPage, bindTv, signupPage, bindSignup, loginPage, bindLogin, dashboardPage, bindDashboard } from './chefs-area.js';
 
 const CHEF_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfwKH4BPHk4PS9OFk5tmeU3t1C-YFD4oieRsf6PxRnTDeTtQQ/viewform';
 const $ = s => document.querySelector(s);
@@ -269,7 +270,7 @@ function donePage(id) {
 function joinPage() {
   return `<section class="hero" style="background-position:center 40%"><div class="wrap" style="padding:70px 20px 60px"><p class="eyebrow" style="color:#F4B393">For chefs</p><h1>Get booked for London's best parties</h1>
     <p class="lead">Join ChefMii as a founding chef. Free verified profile, we film your cooking, and you keep 100% of your price.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-primary" target="_blank" rel="noopener" href="${CHEF_FORM}">Apply as a founding chef (3 min)</a></div></div></section>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-primary" href="#/signup">Create your chef account</a><a class="btn btn-light" target="_blank" rel="noopener" href="${CHEF_FORM}">Or fill in the 3-minute questionnaire</a></div></div></section>
   <section><div class="wrap"><div class="steps"><div class="step"><div class="n">100%</div><h3>Keep your price</h3><p>The host pays the ChefMii booking fee, not you.</p></div><div class="step"><div class="n">Free</div><h3>Filming and profile</h3><p>We film two short cooking clips and set up your menus and prices.</p></div><div class="step"><div class="n">48h</div><h3>Paid fast</h3><p>Payment is taken upfront and paid to you within 48 hours of the event.</p></div></div></div></section>
   <section class="bg-cream"><div class="wrap" style="max-width:900px"><p class="eyebrow">Verification</p><h2>How we verify chefs</h2><p class="muted">We check everything and keep as little as possible. We never keep copies of your ID.</p>
   <table class="tbl" style="background:#fff;border-radius:14px;overflow:hidden;margin-top:14px"><tr><th>Step</th><th>What happens</th><th>Time</th></tr>
@@ -287,6 +288,7 @@ function privacyPage() {
   <tr><td>What you type into the AI concierge</td><td>To recommend chefs and menus</td><td>Legitimate interests (helping you choose)</td><td>Not stored by us; processed only to answer you</td></tr>
   <tr><td>Chefs: name, contact details, social handle, area, cuisines, menus, prices, videos and photos</td><td>To verify chefs and show their profile</td><td>Contract; consent for using videos in marketing</td><td>While the chef is active, then up to 6 years</td></tr>
   <tr><td>Chef checks: that ID, council registration, food hygiene and allergen training and insurance were checked, with expiry dates</td><td>Safety of hosts and fraud prevention</td><td>Legitimate interests</td><td>While the chef is active, then up to 6 years. We never keep copies of ID documents</td></tr>
+  <tr><td>Chef accounts: name, email, password (stored only as a secure hash), cuisine, area, profile text, prices, uploaded videos and photos</td><td>To run your chef account and show your profile and ChefMii TV videos after review</td><td>Contract</td><td>While your account is open; delete it any time from your dashboard</td></tr>
   <tr><td>Your cookie choice</td><td>To remember your choice</td><td>Legitimate interests; strictly necessary storage</td><td>12 months</td></tr></table>
   <h2>3. Who we share it with</h2><p>Your booked chef (only what they need for your event, including allergies if you consented). Service providers who host or run ChefMii for us: Vercel (website hosting), Google (forms and email), a payment provider when payments launch, and, if switched on, an AI model provider that processes concierge requests. We do not sell your data and we do not use advertising cookies.</p>
   <h2>4. International transfers</h2><p>Some providers process data outside the UK, for example in the United States. Where they do, we rely on UK adequacy regulations (including the UK-US data bridge where the provider is certified) or the UK International Data Transfer Agreement or Addendum.</p>
@@ -304,6 +306,9 @@ function cookiesPage() {
   <tr><td>chefmii_consent_v1</td><td>Local storage, first party</td><td>Remembers your cookie choice</td><td>Strictly necessary</td><td>Until you change it (we ask again after 12 months)</td></tr>
   <tr><td>chefmii_requests</td><td>Local storage, first party</td><td>Keeps booking requests you send from this device so you can see your reference</td><td>Strictly necessary</td><td>Until you clear it</td></tr>
   <tr><td>chefmii_last_search</td><td>Local storage, first party</td><td>Remembers your last search (area, cuisine, guests)</td><td>Preferences (only with consent)</td><td>Until you clear it or withdraw consent</td></tr>
+  <tr><td>chefmii_session</td><td>Local storage, first party</td><td>Keeps a chef logged in</td><td>Strictly necessary</td><td>Until you log out</td></tr>
+  <tr><td>chefmii_chef_accounts</td><td>Local storage, first party</td><td>Prototype only: stores chef accounts in this browser (password hashed)</td><td>Strictly necessary</td><td>Until you delete your account</td></tr>
+  <tr><td>chefmii_media</td><td>IndexedDB, first party</td><td>Prototype only: stores videos and photos a chef uploads</td><td>Strictly necessary</td><td>Until deleted</td></tr>
   <tr><td>None in use</td><td>-</td><td>Analytics: not active in this prototype</td><td>Analytics (only with consent)</td><td>-</td></tr></table>
   <p>We do not use advertising or tracking cookies. Fonts and images are served from our own site, so no third party sets cookies when you visit.</p>
   <p>Links to Google Forms and the ICO open other websites with their own cookie policies.</p>
@@ -334,7 +339,7 @@ function bindChef() {
 }
 
 /* ---------- router ---------- */
-function render() {
+async function render() {
   const h = location.hash.replace(/^#\/?/, ''); const [path, qs] = h.split('?'); const parts = path.split('/'); const q = Object.fromEntries(new URLSearchParams(qs || ''));
   let html, after;
   switch (parts[0]) {
@@ -348,16 +353,24 @@ function render() {
     case 'privacy': html = privacyPage(); break;
     case 'cookies': html = cookiesPage(); after = () => { $('#openCk').onclick = cookieModal; }; break;
     case 'admin': html = adminPage(); after = bindAdmin; break;
+    case 'tv': html = await tvPage(); after = () => bindTv(render); break;
+    case 'signup': if (auth.current()) return go('#/dashboard'); html = signupPage(); after = () => bindSignup(go); break;
+    case 'login': if (auth.current()) return go('#/dashboard'); html = loginPage(); after = () => bindLogin(go); break;
+    case 'dashboard': html = await dashboardPage(parts[1] || 'overview'); if (!html) return go('#/login'); after = () => bindDashboard(go, render); break;
     default: html = home(); after = () => { bindSearch(); bindConcierge('hm'); };
   }
   document.querySelectorAll('.modal-bg').forEach(m => m.remove());
   $('#app').innerHTML = html; if (after) after();
   document.querySelectorAll('.nav .links a').forEach(a => a.classList.toggle('on', a.dataset.r === parts[0]));
+  const me = auth.current();
+  $('#authBtns').innerHTML = me ? `<a class="btn btn-ghost" href="#/dashboard">Dashboard</a>` : `<a class="btn btn-ghost" href="#/login">Log in</a>`;
+  $('#drawerAuth').innerHTML = me ? `<a href="#/dashboard">Chef dashboard</a>` : `<a href="#/login">Chef log in</a><a href="#/signup">Join as a chef</a>`;
   $('#drawer').classList.remove('open'); $('#burger').setAttribute('aria-expanded', 'false');
   window.scrollTo(0, 0);
-  document.title = ({ chefs: 'Find a chef', chef: 'Chef profile', concierge: 'AI concierge', request: 'Request a chef', join: 'For chefs', privacy: 'Privacy policy', cookies: 'Cookie policy', admin: 'Founder view', how: 'How it works' }[parts[0]] || 'Book a West African private chef in London') + ' · ChefMii';
+  document.title = ({ tv: 'ChefMii TV', signup: 'Chef sign up', login: 'Log in', dashboard: 'Chef dashboard', chefs: 'Find a chef', chef: 'Chef profile', concierge: 'AI concierge', request: 'Request a chef', join: 'For chefs', privacy: 'Privacy policy', cookies: 'Cookie policy', admin: 'Founder view', how: 'How it works' }[parts[0]] || 'Book a West African private chef in London') + ' · ChefMii';
 }
 $('#burger').onclick = () => { $('#drawer').style.top = Math.max(0, document.querySelector('.nav').getBoundingClientRect().bottom) + 'px'; const o = $('#drawer').classList.toggle('open'); $('#burger').setAttribute('aria-expanded', String(o)); };
 $('#cookieSettings').onclick = cookieModal;
+function go(h) { if (location.hash === h) render(); else location.hash = h; }
 window.addEventListener('hashchange', render);
 render(); cookieBanner();
