@@ -1,7 +1,6 @@
 import { CHEFS, CUISINES, OCCASIONS, AREAS, FEE } from './data.js';
 import { recommendLocal, summariseIntent } from './agent.js';
 
-const WA = '447551674140';
 const CHEF_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSfwKH4BPHk4PS9OFk5tmeU3t1C-YFD4oieRsf6PxRnTDeTtQQ/viewform';
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -174,7 +173,7 @@ function howBlock() {
   return `<section class="bg-cream" id="how"><div class="wrap"><div class="sec-head"><div><p class="eyebrow">How it works</p><h2>Booked in three steps</h2></div></div>
     <div class="steps"><div class="step"><div class="n">1</div><h3>Watch chefs cook</h3><p>Every chef has short cooking videos, set menus and a clear price per guest.</p></div>
     <div class="step"><div class="n">2</div><h3>Send your details</h3><p>Date, guests, postcode and dietary needs. Or ask the concierge to choose for you.</p></div>
-    <div class="step"><div class="n">3</div><h3>We confirm in 24 hours</h3><p>Your chef and quote on WhatsApp. Payment is held until after your event.</p></div></div></div></section>`;
+    <div class="step"><div class="n">3</div><h3>We confirm in 24 hours</h3><p>We send your chef and quote. Payment is held until after your event.</p></div></div></div></section>`;
 }
 function faq() {
   return `<section class="faq"><div class="wrap" style="max-width:820px"><h2>Questions</h2>
@@ -220,7 +219,7 @@ function conciergePage(q) {
 }
 function requestPage(q) {
   const d = new Date(); d.setDate(d.getDate() + 3); const minD = d.toISOString().slice(0, 10);
-  return `<div class="wrap formgrid"><form id="rf" novalidate><h1 style="font-size:clamp(28px,3.6vw,42px)">Request a chef</h1><p class="muted">We reply on WhatsApp within 24 hours with your chef and quote. Nothing to pay now.</p>
+  return `<div class="wrap formgrid"><form id="rf" novalidate><h1 style="font-size:clamp(28px,3.6vw,42px)">Request a chef</h1><p class="muted">We reply within 24 hours with your chef and quote. Nothing to pay now.</p>
     <div class="r2"><div class="f"><label for="fChef">Chef</label><select id="fChef" name="chef"><option value="">Match me with a chef</option>${CHEFS.map(c => `<option value="${c.id}" ${q.chef === c.id ? 'selected' : ''}>${esc(c.name)} · ${esc(c.cuisine.join('/'))}</option>`).join('')}</select></div>
       <div class="f"><label for="fMenu">Menu</label><select id="fMenu" name="menu"></select></div></div>
     <div class="r2"><div class="f"><label for="fOcc">Occasion</label><select id="fOcc" name="occasion">${OCCASIONS.map(o => `<option>${o}</option>`).join('')}</select></div>
@@ -230,7 +229,7 @@ function requestPage(q) {
     <div class="f"><label for="fDiet">Dietary needs or allergies (optional)</label><textarea id="fDiet" name="dietary" placeholder="e.g. 2 vegetarians, 1 guest with a peanut allergy"></textarea></div>
     <div class="f check" id="consentBox" style="display:none"><input type="checkbox" id="fConsent"><label for="fConsent" style="font-weight:400;margin:0">I agree that ChefMii can use this allergy and dietary information to plan my menu and share it only with my booked chef. It is deleted 30 days after my event. I can withdraw this at any time.</label></div>
     <div class="r2"><div class="f"><label for="fName">Your name</label><input id="fName" name="name" maxlength="60" autocomplete="name"></div>
-      <div class="f"><label for="fPhone">WhatsApp number</label><input id="fPhone" name="phone" type="tel" placeholder="07..." maxlength="16" autocomplete="tel"></div></div>
+      <div class="f"><label for="fPhone">Phone number</label><input id="fPhone" name="phone" type="tel" placeholder="07..." maxlength="16" autocomplete="tel"></div></div>
     <div class="f"><label for="fNotes">Anything else?</label><textarea id="fNotes" name="notes" placeholder="Timing, kitchen size, serving style"></textarea></div>
     <p class="small muted">By sending, you agree to our <a href="#/privacy">privacy policy</a>.</p><p class="err" id="err" role="alert"></p>
     <button class="btn btn-primary" type="submit" style="width:100%;padding:15px">Send request</button></form>
@@ -247,7 +246,7 @@ function bindRequest(q) {
   fc.onchange = fill; fm.onchange = calc; fg.oninput = calc; fd.oninput = () => { $('#consentBox').style.display = fd.value.trim() ? 'flex' : 'none'; }; fill();
   $('#rf').onsubmit = e => { e.preventDefault(); const d = Object.fromEntries(new FormData(e.target).entries()); const err = [];
     if (!d.date) err.push('the event date'); if (!/^[A-Za-z]{1,2}\d/.test((d.postcode || '').trim())) err.push('a London postcode');
-    if (!(d.name || '').trim()) err.push('your name'); if (!/^[+0-9 ]{10,16}$/.test((d.phone || '').trim())) err.push('a valid WhatsApp number');
+    if (!(d.name || '').trim()) err.push('your name'); if (!/^[+0-9 ]{10,16}$/.test((d.phone || '').trim())) err.push('a valid phone number');
     if ((d.dietary || '').trim() && !$('#fConsent').checked) err.push('your consent to use the allergy information');
     const c = CHEFS.find(x => x.id === d.chef); if (c && +d.guests < c.min) err.push(`at least ${c.min} guests for ${c.name}`);
     if (err.length) { $('#err').textContent = 'Please add ' + err.join(', ') + '.'; return; }
@@ -258,39 +257,38 @@ function bindRequest(q) {
 function donePage(id) {
   const r = store.get().find(x => x.id === id) || mem.find(x => x.id === id);
   if (!r) return `<section><div class="wrap empty">Request not found. <a href="#/request">Start again</a></div></section>`;
-  const txt = `Hi ChefMii, I've sent request ${r.id}.\nOccasion: ${r.occasion}\nDate: ${r.date}\nGuests: ${r.guests}\nPostcode: ${r.postcode}\nChef: ${r.chef}${r.menu ? ' (' + r.menu + ')' : ''}${r.estimate ? '\nEstimate: ' + money(r.estimate) : ''}\nName: ${r.name}`;
-  return `<div class="wrap done"><div class="tick">${ic('check')}</div><h1 style="font-size:40px">Request sent</h1><p>Thanks ${esc(r.name)}. Your reference is <b>${r.id}</b>. Jo will WhatsApp you within 24 hours with your chef and quote.</p>
-    <p class="muted">For a faster reply, send it on WhatsApp now.</p><a class="btn btn-wa" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent(txt)}">Send on WhatsApp</a><p style="margin-top:20px"><a href="#/chefs">Browse more chefs</a></p></div>`;
+  return `<div class="wrap done"><div class="tick">${ic('check')}</div><h1 style="font-size:40px">Request sent</h1><p>Thanks ${esc(r.name)}. Your reference is <b>${r.id}</b>. We will contact you within 24 hours with your chef and quote.</p>
+    <p style="margin-top:20px"><a href="#/chefs">Browse more chefs</a></p></div>`;
 }
 function joinPage() {
   return `<section class="hero" style="background-position:center 40%"><div class="wrap" style="padding:70px 20px 60px"><p class="eyebrow" style="color:#F4B393">For chefs</p><h1>Get booked for London's best parties</h1>
     <p class="lead">Join ChefMii as a founding chef. Free verified profile, we film your cooking, and you keep 100% of your price.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-primary" target="_blank" rel="noopener" href="${CHEF_FORM}">Apply as a founding chef (3 min)</a><a class="btn btn-light" target="_blank" rel="noopener" href="https://wa.me/${WA}?text=${encodeURIComponent("Hi Jo, I'm a chef and I'd like to join ChefMii")}">Ask Jo on WhatsApp</a></div></div></section>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-primary" target="_blank" rel="noopener" href="${CHEF_FORM}">Apply as a founding chef (3 min)</a></div></div></section>
   <section><div class="wrap"><div class="steps"><div class="step"><div class="n">100%</div><h3>Keep your price</h3><p>The host pays the ChefMii booking fee, not you.</p></div><div class="step"><div class="n">Free</div><h3>Filming and profile</h3><p>We film two short cooking clips and set up your menus and prices.</p></div><div class="step"><div class="n">48h</div><h3>Paid fast</h3><p>Payment is taken upfront and paid to you within 48 hours of the event.</p></div></div></div></section>
   <section class="bg-cream"><div class="wrap" style="max-width:900px"><p class="eyebrow">Verification</p><h2>How we verify chefs</h2><p class="muted">We check everything and keep as little as possible. We never keep copies of your ID.</p>
   <table class="tbl" style="background:#fff;border-radius:14px;overflow:hidden;margin-top:14px"><tr><th>Step</th><th>What happens</th><th>Time</th></tr>
-  ${[['Apply', 'Fill in the short form', '3 min'], ['Call', '15-minute WhatsApp video call with Jo', '15 min'], ['ID check', 'Show photo ID on the call. We record that it was checked, not a copy', '5 min'], ['Food safety', 'Council food business registration, food hygiene training and allergen training (the free FSA course is fine)', '10 min'], ['Insurance', 'Public liability insurance', '5 min'], ['Taste and film', 'Cook two signature dishes; we film and agree menus', '2 to 3 hrs'], ['Go live', 'Sign the chef agreement and your profile goes live', '10 min']].map((r, i) => `<tr><td><b>${i + 1}. ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>
+  ${[['Apply', 'Fill in the short form', '3 min'], ['Call', '15-minute video call with ChefMii', '15 min'], ['ID check', 'Show photo ID on the call. We record that it was checked, not a copy', '5 min'], ['Food safety', 'Council food business registration, food hygiene training and allergen training (the free FSA course is fine)', '10 min'], ['Insurance', 'Public liability insurance', '5 min'], ['Taste and film', 'Cook two signature dishes; we film and agree menus', '2 to 3 hrs'], ['Go live', 'Sign the chef agreement and your profile goes live', '10 min']].map((r, i) => `<tr><td><b>${i + 1}. ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>
   <p class="small muted" style="margin-top:12px">Help: <a target="_blank" rel="noopener" href="https://www.food.gov.uk/business-guidance/how-to-register-a-food-business">Register a food business (FSA)</a> · <a target="_blank" rel="noopener" href="https://www.food.gov.uk/business-guidance/allergen-guidance-for-food-businesses">Allergen guidance (FSA)</a></p></div></section>`;
 }
 const UPDATED = '21 November 2026';
 function privacyPage() {
   return `<div class="wrap legal"><p class="eyebrow">Legal</p><h1>Privacy policy</h1><p class="muted">Last updated ${UPDATED}. Draft for the ChefMii prototype; it will be reviewed before launch.</p>
-  <h2>1. Who we are</h2><p>ChefMii ("we", "us") helps people in London book West African private chefs. ChefMii is run by Joseph Osei-Bonsu, East London, United Kingdom, and is not yet a registered company. We are the controller of your personal data. Contact: <a href="mailto:job.archteam4@gmail.com">job.archteam4@gmail.com</a> or <a href="https://wa.me/${WA}">WhatsApp</a>.</p>
+  <h2>1. Who we are</h2><p>ChefMii ("we", "us") helps people in London book West African private chefs. ChefMii is run by Joseph Osei-Bonsu, East London, United Kingdom, and is not yet a registered company. We are the controller of your personal data. Contact: <a href="mailto:job.archteam4@gmail.com">job.archteam4@gmail.com</a>.</p>
   <h2>2. What we collect and why</h2>
   <table><tr><th>Data</th><th>Why</th><th>Lawful basis (UK GDPR)</th><th>How long we keep it</th></tr>
-  <tr><td>Hosts: name, WhatsApp number, event date, postcode, guest count, occasion, notes</td><td>To arrange your booking and send you a quote</td><td>Contract, or steps before a contract at your request</td><td>Up to 6 years after your event for accounting and legal claims; enquiries that do not become bookings: 12 months</td></tr>
+  <tr><td>Hosts: name, phone number, event date, postcode, guest count, occasion, notes</td><td>To arrange your booking and send you a quote</td><td>Contract, or steps before a contract at your request</td><td>Up to 6 years after your event for accounting and legal claims; enquiries that do not become bookings: 12 months</td></tr>
   <tr><td>Allergy and dietary information</td><td>To plan a safe menu with your chef</td><td>Your explicit consent (special category health data)</td><td>Deleted 30 days after your event</td></tr>
   <tr><td>What you type into the AI concierge</td><td>To recommend chefs and menus</td><td>Legitimate interests (helping you choose)</td><td>Not stored by us; processed only to answer you</td></tr>
   <tr><td>Chefs: name, contact details, social handle, area, cuisines, menus, prices, videos and photos</td><td>To verify chefs and show their profile</td><td>Contract; consent for using videos in marketing</td><td>While the chef is active, then up to 6 years</td></tr>
   <tr><td>Chef checks: that ID, council registration, food hygiene and allergen training and insurance were checked, with expiry dates</td><td>Safety of hosts and fraud prevention</td><td>Legitimate interests</td><td>While the chef is active, then up to 6 years. We never keep copies of ID documents</td></tr>
   <tr><td>Your cookie choice</td><td>To remember your choice</td><td>Legitimate interests; strictly necessary storage</td><td>12 months</td></tr></table>
-  <h2>3. Who we share it with</h2><p>Your booked chef (only what they need for your event, including allergies if you consented). Service providers who host or run ChefMii for us: Vercel (website hosting), Google (forms and email), Meta (WhatsApp, if you choose to message us), a payment provider when payments launch, and, if switched on, an AI model provider that processes concierge requests. We do not sell your data and we do not use advertising cookies.</p>
+  <h2>3. Who we share it with</h2><p>Your booked chef (only what they need for your event, including allergies if you consented). Service providers who host or run ChefMii for us: Vercel (website hosting), Google (forms and email), a payment provider when payments launch, and, if switched on, an AI model provider that processes concierge requests. We do not sell your data and we do not use advertising cookies.</p>
   <h2>4. International transfers</h2><p>Some providers process data outside the UK, for example in the United States. Where they do, we rely on UK adequacy regulations (including the UK-US data bridge where the provider is certified) or the UK International Data Transfer Agreement or Addendum.</p>
   <h2>5. Your rights</h2><p>You can ask to access, correct or delete your data, restrict or object to how we use it, move it to another service, and withdraw consent at any time (for example for allergy information or marketing). Contact us using the details above. We reply within one month.</p>
   <h2>6. Complaints</h2><p>Please tell us first. You can also complain to the Information Commissioner's Office: <a target="_blank" rel="noopener" href="https://ico.org.uk/make-a-complaint/">ico.org.uk/make-a-complaint</a>.</p>
   <h2>7. Security</h2><p>Accounts are protected with two-step sign-in, access is limited to the founder, and we collect only what we need.</p>
   <h2>8. Cookies</h2><p>See our <a href="#/cookies">cookie policy</a>.</p>
-  <h2>9. This prototype</h2><p>In this prototype, booking requests are saved only in your own browser and sent to us only if you press "Send on WhatsApp". Chef profiles are demo data.</p>
+  <h2>9. This prototype</h2><p>In this prototype, booking requests are saved only in your own browser and are not sent to us. Chef profiles are demo data.</p>
   <h2>10. Changes</h2><p>We will update this page and the date above if anything changes.</p></div>`;
 }
 function cookiesPage() {
@@ -302,7 +300,7 @@ function cookiesPage() {
   <tr><td>chefmii_last_search</td><td>Local storage, first party</td><td>Remembers your last search (area, cuisine, guests)</td><td>Preferences (only with consent)</td><td>Until you clear it or withdraw consent</td></tr>
   <tr><td>None in use</td><td>-</td><td>Analytics: not active in this prototype</td><td>Analytics (only with consent)</td><td>-</td></tr></table>
   <p>We do not use advertising or tracking cookies. Fonts and images are served from our own site, so no third party sets cookies when you visit.</p>
-  <p>Links to WhatsApp, Google Forms and the ICO open other websites with their own cookie policies.</p>
+  <p>Links to Google Forms and the ICO open other websites with their own cookie policies.</p>
   <p><button class="btn btn-primary" id="openCk">Change cookie settings</button></p></div>`;
 }
 function adminPage() {
@@ -312,7 +310,7 @@ function adminPage() {
   ${all.length ? `<div style="overflow-x:auto"><table class="tbl"><tr><th>Ref</th><th>Status</th><th>Event</th><th>Chef and menu</th><th>Host</th><th>Estimate</th></tr>${all.map((r, i) => `<tr><td><b>${r.id}</b><div class="muted small">${new Date(r.created).toLocaleString('en-GB')}</div></td>
    <td><select class="select" data-i="${i}">${ST.map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
    <td>${esc(r.occasion)}<div class="muted small">${esc(r.date)} · ${r.guests} guests · ${esc(r.postcode)}</div>${r.dietary ? `<div class="alert" style="margin-top:6px">ALLERGY CHECK: ${esc(r.dietary)}</div>` : ''}</td>
-   <td>${esc(r.chef)}<div class="muted small">${esc(r.menu)}</div></td><td>${esc(r.name)}<div class="small"><a target="_blank" rel="noopener" href="https://wa.me/${esc(r.phone.replace(/\D/g, '').replace(/^0/, '44'))}">${esc(r.phone)}</a></div></td><td>${r.estimate ? money(r.estimate) : '-'}</td></tr>`).join('')}</table></div>` : '<div class="empty">No requests yet. Try the <a href="#/request">request form</a>.</div>'}</div></section>`;
+   <td>${esc(r.chef)}<div class="muted small">${esc(r.menu)}</div></td><td>${esc(r.name)}<div class="small"><a href="tel:${esc(r.phone.replace(/\s/g, ''))}">${esc(r.phone)}</a></div></td><td>${r.estimate ? money(r.estimate) : '-'}</td></tr>`).join('')}</table></div>` : '<div class="empty">No requests yet. Try the <a href="#/request">request form</a>.</div>'}</div></section>`;
 }
 function bindAdmin() {
   document.querySelectorAll('select[data-i]').forEach(s => s.onchange = () => { const a = store.get(); a[+s.dataset.i].status = s.value; store.set(a); });
@@ -347,6 +345,5 @@ function render() {
 }
 $('#burger').onclick = () => { $('#drawer').style.top = Math.max(0, document.querySelector('.nav').getBoundingClientRect().bottom) + 'px'; const o = $('#drawer').classList.toggle('open'); $('#burger').setAttribute('aria-expanded', String(o)); };
 $('#cookieSettings').onclick = cookieModal;
-$('#waFloat').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent("Hi ChefMii, I'd like to book a chef");
 window.addEventListener('hashchange', render);
 render(); cookieBanner();
